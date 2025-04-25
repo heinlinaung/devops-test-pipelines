@@ -1,4 +1,4 @@
-## TaskB Jenkenfile
+// TaskB Jenkinsfile
 pipeline {
     agent any
 
@@ -15,16 +15,6 @@ pipeline {
             }
         }
 
-        stage('Install Doxygen') {
-            steps {
-                sh '''
-                    if ! command -v doxygen &> /dev/null; then
-                        brew install doxygen
-                    fi
-                '''
-            }
-        }
-
         stage('Generate Doxygen Config') {
             steps {
                 sh "doxygen -g ${DOXYFILE}"
@@ -33,13 +23,11 @@ pipeline {
 
         stage('Adjust Config') {
             steps {
-                script {
-                    sh """
-                        sed -i 's|^INPUT.*|INPUT = src|' ${DOXYFILE}
-                        sed -i 's|^GENERATE_HTML.*|GENERATE_HTML = YES|' ${DOXYFILE}
-                        sed -i 's|^GENERATE_LATEX.*|GENERATE_LATEX = NO|' ${DOXYFILE}
-                    """
-                }
+                sh '''
+                    sed -i.bak 's|^INPUT.*|INPUT = src|' ${DOXYFILE}
+                    sed -i.bak 's|^GENERATE_HTML.*|GENERATE_HTML = YES|' ${DOXYFILE}
+                    sed -i.bak 's|^GENERATE_LATEX.*|GENERATE_LATEX = NO|' ${DOXYFILE}
+                '''
             }
         }
 
@@ -54,6 +42,16 @@ pipeline {
                 sh 'tar -czf doc.tar.gz html/'
                 archiveArtifacts artifacts: 'doc.tar.gz'
             }
+        }
+    }
+
+    post {
+        success {
+            publishHTML(target: [
+                reportDir: 'html',
+                reportFiles: 'index.html',
+                reportName: 'Doxygen Documentation'
+            ])
         }
     }
 }
