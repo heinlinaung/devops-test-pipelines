@@ -25,7 +25,7 @@ pipeline {
             steps {
                 sh """
                     sed -i.bak 's|^INPUT.*|INPUT = src|' ${DOXYFILE}
-                    sed -i.bak 's|^INPUT.*|RECURSIVE = YES|' ${DOXYFILE}
+                    sed -i.bak 's|^RECURSIVE.*|RECURSIVE = YES|' ${DOXYFILE}
                     sed -i.bak 's|^GENERATE_HTML.*|GENERATE_HTML = YES|' ${DOXYFILE}
                     sed -i.bak 's|^GENERATE_LATEX.*|GENERATE_LATEX = NO|' ${DOXYFILE}
                 """
