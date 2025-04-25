@@ -44,14 +44,4 @@ pipeline {
             }
         }
     }
-
-    post {
-        success {
-            publishHTML(target: [
-                reportDir: 'html',
-                reportFiles: 'index.html',
-                reportName: 'Doxygen Documentation'
-            ])
-        }
-    }
 }
