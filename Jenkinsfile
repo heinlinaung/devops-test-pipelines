@@ -3,15 +3,17 @@ pipeline {
     agent any
 
     environment {
-        REPO_URL = 'https://github.com/heinlinaung/devops-test-repo-A.git'
-        REPO_BRANCH = 'master'
+        REPO_A_URL = 'https://github.com/heinlinaung/devops-test-repo-A.git'
+        REPO_A_BRANCH = 'master'
+        REPO_C_URL = 'https://github.com/heinlinaung/devops-test-repo-C.git'
+        REPO_C_BRANCH = 'main'
         DOXYFILE = 'Doxyfile'
     }
 
     stages {
         stage('Checkout RepoA') {
             steps {
-                git url: "${env.REPO_URL}", branch: "${env.REPO_BRANCH}"
+                git url: "${env.REPO_A_URL}", branch: "${env.REPO_A_BRANCH}"
             }
         }
 
@@ -28,6 +30,7 @@ pipeline {
                     sed -i.bak 's|^INPUT.*|RECURSIVE = YES|' ${DOXYFILE}
                     sed -i.bak 's|^GENERATE_HTML.*|GENERATE_HTML = YES|' ${DOXYFILE}
                     sed -i.bak 's|^GENERATE_LATEX.*|GENERATE_LATEX = NO|' ${DOXYFILE}
+                    sed -i.bak 's|^WARN_LOGFILE.*|WARN_LOGFILE = warnings.log|' ${DOXYFILE}
                 """
             }
         }
@@ -38,10 +41,21 @@ pipeline {
             }
         }
 
-        stage('Package HTML Docs') {
+        // --- TaskC ---
+        stage('Clone RepoC (Python)') {
             steps {
-                sh 'tar -czf doc.tar.gz html/'
-                archiveArtifacts artifacts: 'doc.tar.gz'
+                dir('repoC') {
+                    git url: "${env.REPO_C_URL}", branch: "${env.REPO_C_BRANCH}"
+                }
+            }
+        }
+
+        stage('Run log_parser.py') {
+            steps {
+                dir('repoC') {
+                    sh 'python3 log_parser.py || echo "log_parser failed"'
+                    archiveArtifacts artifacts: 'output.csv'
+                }
             }
         }
     }
