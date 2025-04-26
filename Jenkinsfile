@@ -1,4 +1,4 @@
-// TaskB Jenkinsfile
+// TaskB and TaskC Jenkinsfile
 pipeline {
     agent any
 
@@ -8,6 +8,7 @@ pipeline {
         REPO_C_URL = 'https://github.com/heinlinaung/devops-test-repo-C.git'
         REPO_C_BRANCH = 'main'
         DOXYFILE = 'Doxyfile'
+        LOG_FILE_NAME = 'warnings.log'
     }
 
     stages {
@@ -27,10 +28,10 @@ pipeline {
             steps {
                 sh """
                     sed -i.bak 's|^INPUT.*|INPUT = src|' ${DOXYFILE}
-                    sed -i.bak 's|^INPUT.*|RECURSIVE = YES|' ${DOXYFILE}
+                    sed -i.bak 's|^RECURSIVE.*|RECURSIVE = YES|' ${DOXYFILE}
                     sed -i.bak 's|^GENERATE_HTML.*|GENERATE_HTML = YES|' ${DOXYFILE}
                     sed -i.bak 's|^GENERATE_LATEX.*|GENERATE_LATEX = NO|' ${DOXYFILE}
-                    sed -i.bak 's|^WARN_LOGFILE.*|WARN_LOGFILE = warnings.log|' ${DOXYFILE}
+                    sed -i.bak 's|^WARN_LOGFILE.*|WARN_LOGFILE = ${LOG_FILE_NAME}|' ${DOXYFILE}
                 """
             }
         }
@@ -53,7 +54,7 @@ pipeline {
         stage('Run log_parser.py') {
             steps {
                 dir('repoC') {
-                    sh 'python3 log_parser.py || echo "log_parser failed"'
+                    sh "python3 log_parser.py ../${LOG_FILE_NAME}"
                     archiveArtifacts artifacts: 'output.csv'
                 }
             }
