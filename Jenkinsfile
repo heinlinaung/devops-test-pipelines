@@ -28,6 +28,7 @@ pipeline {
                     sed -i.bak 's|^RECURSIVE.*|RECURSIVE = YES|' ${DOXYFILE}
                     sed -i.bak 's|^GENERATE_HTML.*|GENERATE_HTML = YES|' ${DOXYFILE}
                     sed -i.bak 's|^GENERATE_LATEX.*|GENERATE_LATEX = NO|' ${DOXYFILE}
+                    sed -i.bak 's|^WARN_LOGFILE.*|WARN_LOGFILE = warnings.log|' ${DOXYFILE}
                 """
             }
         }
@@ -42,6 +43,13 @@ pipeline {
             steps {
                 sh 'tar -czf doc.tar.gz html/'
                 archiveArtifacts artifacts: 'doc.tar.gz'
+            }
+        }
+
+        stage('Package warnings.log') {
+            steps {
+                sh 'tar -czf warnings.tar.gz warnings.log'
+                archiveArtifacts artifacts: 'warnings.tar.gz'
             }
         }
     }
