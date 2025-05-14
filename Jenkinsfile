@@ -54,7 +54,7 @@ pipeline {
         stage('Run log_parser.py') {
             steps {
                 dir('repoC') {
-                    sh "python3 log_parser.py ../${LOG_FILE_NAME}"
+                    sh "python3 check.py ../${LOG_FILE_NAME}"
                     archiveArtifacts artifacts: 'output.csv'
                 }
             }
